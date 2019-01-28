@@ -96,17 +96,10 @@ float = {digits}\.{digits}	/*Definition for creating floating point numbers.*/
 id 		= {letter}({letter}|{digit})* /*Definition for ids. Matches a letter
 										pattern followed by a number, or letter
 										zero or more times.*/
-optional_exponent = (((E|e)[\+|\-]?){digits})?  /*Matches optional
-											exponents. The entire exponent
-											is optional because of the ?
-											where it will match the empty
-											input.*/
-scientific_notation = {digit}\.{digits}{optional_exponent}  /*Matches a
-															single digit,
-															followed by a
-															period and an
-															exponent with
-															digits.*/
+optional_exponent = (((E|e)[\+|\-]?){digits})?  /*Definition for optional exponents.*/
+scientific_notation = {digit}\.{digits}{optional_exponent}  /*Matches a single digit,
+															followed by a period and an
+															exponent with digits.*/
 optional_fraction = (\.{digits})?  /*Matches a period followed by
 									digits. */
 
