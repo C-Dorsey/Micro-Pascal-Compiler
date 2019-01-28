@@ -102,12 +102,9 @@ scientific_notation = {digit}\.{digits}{optional_exponent}  /*Matches a single d
 															exponent with digits.*/
 optional_fraction = (\.{digits})?  /*definition for a fraction*/
 
-num = {digits}{optional_fraction}{optional_exponent} /*Matches numbers in
-													   the grammar as
-													   digits followed by
-													   optional fractions
-													   and optional
-													   exponents.*/
+num = {digits}{optional_fraction}{optional_exponent} /*Matches numbers in the grammar as
+													   digits followed by optional fractions
+													   and optional exponents.*/
 
 symbols = <>|<=|>=|:=|[\;\,\[\]\:\)\(\+\-\*\=\<\>\/\.] /*Matches all of
 														the symbols listed
