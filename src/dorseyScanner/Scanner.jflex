@@ -100,8 +100,7 @@ optional_exponent = (((E|e)[\+|\-]?){digits})?  /*Definition for optional expone
 scientific_notation = {digit}\.{digits}{optional_exponent}  /*Matches a single digit,
 															followed by a period and an
 															exponent with digits.*/
-optional_fraction = (\.{digits})?  /*Matches a period followed by
-									digits. */
+optional_fraction = (\.{digits})?  /*definition for a fraction*/
 
 num = {digits}{optional_fraction}{optional_exponent} /*Matches numbers in
 													   the grammar as
