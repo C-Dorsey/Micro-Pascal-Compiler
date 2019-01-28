@@ -106,8 +106,7 @@ num = {digits}{optional_fraction}{optional_exponent} /*Matches numbers in the gr
 													   digits followed by optional fractions
 													   and optional exponents.*/
 
-symbols = <>|<=|>=|:=|[\;\,\[\]\:\)\(\+\-\*\=\<\>\/\.] /*Matches all of
-														the symbols listed
+symbols = <>|<=|>=|:=|[\;\,\[\]\:\)\(\+\-\*\=\<\>\/\.] /*Definition for all	the symbols listed
 													 	in the grammar.*/
 
 %%
