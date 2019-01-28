@@ -113,26 +113,21 @@ symbols = <>|<=|>=|:=|[\;\,\[\]\:\)\(\+\-\*\=\<\>\/\.] /*Definition for all	the 
 /* Lexical Rules */
 
 
-		 /*Prints out the number that was found. Invokes the constructor
-		 with two arguments, the lexeme and the token type.*/
+/*Prints out the number found. Invokes the constructor
+ with two arguments, the lexeme and the token type.*/
 {num} { return(new Token(yytext(), TokenType.NUMBER));}
 
-			 /*Prints out a letter that was found and returns it. Invokes
-			 the constructor with two arguments, the lexeme and the token
-			 type.*/
+/*Prints out a letter that was found and returns it. Invokes
+ the constructor with two arguments, the lexeme and the token
+ type.*/
 {letter}     { return(new Token(yytext(),
 			   lookupTable.get(yytext())));}
 
-
-
-{whitespace}  {  /* Ignore whitespace, do nothing. */
-              }
-
-             /*Prints out the id that was found and returns it. Invokes a
-             constructor with two arguments, the lexeme and the token
-             type. If the lexeme isn't empty when it returns from the
-             lookup table, then it's a Token. If it is empty, it's an
-             identifier. */
+/*Prints out the id that was found and returns it. Invokes a
+constructor with two arguments, the lexeme and the token
+type. If the lexeme isn't empty when it returns from the
+lookup table, then it's a Token. If it is empty, it's an
+identifier. */
 {id}  		{
 				if(lookupTable.get(yytext()) != null)
 				{return(new Token(yytext(), lookupTable.get(yytext())));}
@@ -141,19 +136,22 @@ symbols = <>|<=|>=|:=|[\;\,\[\]\:\)\(\+\-\*\=\<\>\/\.] /*Definition for all	the 
 				return(new Token(yytext(), TokenType.ID));}
 			}
 
-			/*Prints out the symbol that was found and returns it. Invokes
-			the constructor with two arguments, the lexeme and the token
-			type.*/
+/*Prints out the symbol that was found and returns it. Invokes
+he constructor with two arguments, the lexeme and the token
+type.*/
 {symbols}	{ return(new Token(yytext(),
 			 lookupTable.get(yytext())));}
 
-            /*Prints out the float that was found and returns it. Invokes
-             the constructor with two arguments, the lexeme and the token
-             type.*/
+/*Prints out the float that was found and returns it. Invokes
+the constructor with two arguments, the lexeme and the token
+type.*/
 {float}  	{ return(new Token(yytext(),
 			  lookupTable.get(yytext())));}
 
-			/*Prints out an illegal character that was found
-			and returns it. Invokes the constructor
-		 with two arguments, the lexeme and the token type.*/
+/*Prints out an illegal character that was found
+and returns it. Invokes the constructor
+with two arguments, the lexeme and the token type.*/
 {other}    {System.out.println("Unidentified Token: " + yytext());}
+
+/*Will ignore any whitespace that has been passed in. */
+{whitespace}  {  /* Ignore whitespace */}
