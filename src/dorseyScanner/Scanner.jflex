@@ -1,9 +1,9 @@
 /**
- * The AllenScanner is scanner program that is going to use JFlex
- * to generate a Java scanner that will scan through the input text
- * file and return a lexeme, yytext returns the matched lexeme.
+ * The is a scanner program that uses JFlex to generate a Java scanner.
+ * It will scan through the input text file and return the lexeme,
+ * the yytext is what specifically returns the matched lexeme.
  * The lexeme is going to be the string containing the actual characters
- * that were read in that make up one particular token in the language.
+ * that were read in and make up one particular token in the language.
  *
  * @author Cohl Dorsey
  */
