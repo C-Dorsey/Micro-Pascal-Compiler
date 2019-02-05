@@ -34,6 +34,16 @@ public class ScannerTest
         String filename = "C:\\Users\\Cohl Dorsey\\Documents\\School\\Computer Science\\Compilers\\MyCompiler" +
                 "\\test3_testProgram.txt";
 
+        // Initializes the FileInputStream object
+        FileInputStream fis = null;
+        try
+        {
+            fis = new FileInputStream( filename);
+        } catch (Exception e )
+        {
+            System.out.println("File not found");
+        }
+
 
     }
 }
