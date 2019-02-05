@@ -51,8 +51,23 @@ public class ScannerTest
         InputStreamReader object. */
         Scanner scanner = new Scanner( isr);
         System.out.println("Token test 'program' from file: ");
+
         //Expected enum Token type.
         TokenType expected = TokenType.PROGRAM;
+
+        //Testing program Token to see if it passes.
+        try {
+            token = scanner.nextToken();
+            //The actual Token type.
+            TokenType actual = token.getType();
+            //Testing to see if the type actually matches the TokenType enum.
+            assertEquals(expected, actual);
+            System.out.println("program passed.");
+        }
+        catch(Exception e) {
+
+            System.out.println("Unexpected Token found: " + token);
+        }
 
 
     }
