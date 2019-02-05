@@ -47,5 +47,13 @@ public class ScannerTest
         // Initializes InputStreamReader object
         InputStreamReader isr = new InputStreamReader(fis);
 
+        /*Creates a Scanner object to read input from the
+        InputStreamReader object. */
+        Scanner scanner = new Scanner( isr);
+        System.out.println("Token test 'program' from file: ");
+        //Expected enum Token type.
+        TokenType expected = TokenType.PROGRAM;
+
+
     }
 }
