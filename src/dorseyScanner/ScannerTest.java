@@ -44,6 +44,8 @@ public class ScannerTest
             System.out.println("File not found");
         }
 
+        // Initializes InputStreamReader object
+        InputStreamReader isr = new InputStreamReader(fis);
 
     }
 }
