@@ -27,8 +27,13 @@ public class ScannerTest
      * if the scanner returns the correct token type and lexeme.
      */
     @Test
-    public void testToken()
+    public void tokenTest()
     {
+        Token token = null;
+
+        String filename = "C:\\Users\\Cohl Dorsey\\Documents\\School\\Computer Science\\Compilers\\MyCompiler" +
+                "\\test3_testProgram.txt";
+
 
     }
 }
