@@ -20,5 +20,15 @@ import java.io.StringReader;
 import org.junit.Test;
 
 
-public class ScannerTest {
+public class ScannerTest
+{
+    /**
+     * This method uses JUnit to test the nextToken method by testing
+     * if the scanner returns the correct token type and lexeme.
+     */
+    @Test
+    public void testToken()
+    {
+
+    }
 }
