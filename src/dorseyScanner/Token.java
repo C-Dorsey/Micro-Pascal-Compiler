@@ -9,11 +9,18 @@ package dorseyScanner;
  *
  * @author steinmee
  */
-public class Token {
+public class Token
+{
     public String lexeme;
     public TokenType type;
+
     public Token( String l, TokenType t) {
         this.lexeme = l;
         this.type = t;
+    }
+
+    getType()
+    {
+        return type;
     }
 }
