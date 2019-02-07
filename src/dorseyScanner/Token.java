@@ -19,7 +19,7 @@ public class Token
         this.type = t;
     }
 
-    getType()
+    public TokenType getType()
     {
         return type;
     }
