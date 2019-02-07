@@ -40,7 +40,7 @@ public class MyScanner
         {
             try {
                 //Used to return the next token from this string tokenizer.
-                aToken = scanner.nextToken();
+                aToken = String.valueOf(scanner.nextToken());
             }
             catch( Exception e) { e.printStackTrace();}
             //Only prints tokens if they are not a whitespace token or a null token.
