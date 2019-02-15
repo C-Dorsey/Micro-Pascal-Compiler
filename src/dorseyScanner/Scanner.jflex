@@ -20,16 +20,34 @@ import java.util.HashMap;
 /*Makes all of the generated methods and fields of the class private, except for the constructor and the next_token method.*/
 
 %function nextToken /* Renames the yylex() function. */
-%type   Token     /* Defines the return type of the scanning function.*/
+%line               /* Activates the line count directive. */
+%column             /* Activates the column cound directive. */
+%type   Token       /* Defines the return type of the scanning function.*/
 %eofval{
   return null;
 %eofval}
 
 %{
-	/*Declaring an instance variable of a HashMap called lookupTable
-	Copies the HashMap code inside the brackets and puts it
-	inside the class itself. */
+	/**
+	* Declaring an instance variable of a HashMap called lookupTable
+	* Copies the HashMap code inside the brackets and puts it
+	* inside the class itself.
+	*/
 	private HashMap<String, TokenType> lookupTable;
+
+	/**
+	* Retrieves the line number of the most recent lexeme that will
+	* be used to generate error messages.
+	* @return Returns the current line number.
+	*/
+	public int getLine() {return yyline;}
+
+	/**
+	* Retrieves the column number of the most recent lexeme that will
+	* be used to generate error messages.
+	* @return Returns the current column number.
+	*/
+	public int getCol() {return yycolumn;}
 %}
 
 %init{
