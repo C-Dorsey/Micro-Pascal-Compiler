@@ -74,4 +74,19 @@ public class Recognizer
     // Implementation of the grammar //
     ///////////////////////////////////
 
+    /**
+     * Executes the rule for the program symbol.
+     */
+    public void program()
+    {
+        match(TokenType.PROGRAM);
+        match(TokenType.ID);
+        match(TokenType.SEMI);
+        declarations();
+        subprogram_declarations();
+        compound_statement();
+        match(TokenType.PERIOD);
+    }
+
+
 }
