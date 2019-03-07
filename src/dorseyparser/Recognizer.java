@@ -70,4 +70,8 @@ public class Recognizer
         }
     }
 
+    ///////////////////////////////////
+    // Implementation of the grammar //
+    ///////////////////////////////////
+
 }
