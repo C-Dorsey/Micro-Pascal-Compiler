@@ -88,5 +88,23 @@ public class Recognizer
         match(TokenType.PERIOD);
     }
 
+    /**
+     * Executes the role for identifier list
+     */
+    public void identifier_list()
+    {
+        match(TokenType.ID);
+        /*Comparing the current lookahead token with a token type to
+        see if it matches the same type. */
+        if(this.lookahead.getType() == TokenType.COMMA)
+        {
+            match(TokenType.COMMA);
+            identifier_list();
+        }
+        else
+        {
+            //Do nothing. This is for handling the empty/lambda option.
+        }
+    }
 
 }
