@@ -30,7 +30,7 @@ public class RecognizerTest
 
         //Pascal file test
         Recognizer instance = new Recognizer
-                ( "src/parser/quiz.pas", true);
+                ( "src/dorseyparser/rectest1.pas", true);
 
         //Happy path, with good pascal.
         try
@@ -47,7 +47,7 @@ public class RecognizerTest
 
         //Pascal file test
         instance = new Recognizer
-                ("src/parser/midterm.pas", true);
+                ("src/dorseyparser/rectest2.pas", true);
 
         //Happy path, with good pascal.
         try
@@ -64,7 +64,7 @@ public class RecognizerTest
 
         //Pascal file test
         instance = new Recognizer
-                ("src/parser/final.pas", true);
+                ("src/dorseyparser/rectest3.pas", true);
 
         //Happy path, with good pascal.
         try
