@@ -25,7 +25,7 @@ public class RecognizerTest
     public void testProgram()
     {
         System.out.println("\n" + "######################" + "\n" +
-                "#    Test program      #" + "\n" +
+                "#    Test program    #" + "\n" +
                 "######################" + "\n");
 
         //Pascal file test
