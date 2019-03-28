@@ -24,9 +24,7 @@ public class RecognizerTest
     @Test
     public void testProgram()
     {
-        System.out.println("\n" + "######################" + "\n" +
-                "#    Test program    #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####    Test program    ####\n");
 
         //Pascal file test
         Recognizer instance = new Recognizer
@@ -120,9 +118,7 @@ public class RecognizerTest
     @Test
     public void testDeclarations()
     {
-        System.out.println("\n" + "######################" + "\n" +
-                "#    Test declarations      #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####    Test declarations      ####\n");
 
         //Pascal string test. Happy path, with good pascal.
         String test = "var declarations : integer ;";
@@ -164,9 +160,7 @@ public class RecognizerTest
     @Test
     public void testSubprogram_declaration()
     {
-        System.out.println("\n" + "#################################" + "\n" +
-                "#  Test subprogram declaration  #" + "\n" +
-                "#################################" + "\n");
+        System.out.println("####  Test subprogram declaration  ####");
 
         //Pascal string test. Happy path, with good pascal.
         String test = "procedure fooz (identifier : integer) ;\n" +
@@ -210,9 +204,7 @@ public class RecognizerTest
     @Test
     public void testStatement()
     {
-        System.out.println("\n" + "########################" + "\n" +
-                "#    Test statement    #" + "\n" +
-                "########################" + "\n");
+        System.out.println("####    Test statement    ####");
 
         //Pascal string test. Happy path, with good pascal.
         String test = "read (foo)";
@@ -255,9 +247,7 @@ public class RecognizerTest
     @Test
     public void testSimple_expression()
     {
-        System.out.println("##############################" + "\n" +
-                "#   Test simple expression   #" + "\n" +
-                "##############################" + "\n");
+        System.out.println("####   Test simple expression   ####");
         String test = "34 + 17 * 7";
         Recognizer instance = new Recognizer
                 ( test, false);
@@ -299,9 +289,7 @@ public class RecognizerTest
     @Test
     public void testFactor()
     {
-        System.out.println("\n" + "######################" + "\n" +
-                "#     Test factor    #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####     Test factor    ####");
         Recognizer instance = new Recognizer( "87654321", false);
         try
         {
@@ -340,9 +328,7 @@ public class RecognizerTest
      */
     @Test
     public void testSimple_part() {
-        System.out.println("\n" + "######################" + "\n" +
-                "#  Test simple part  #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####  Test simple part  ####");
         String test = "+ 34";
         Recognizer instance = new Recognizer( test, false);
         try
@@ -383,9 +369,7 @@ public class RecognizerTest
      */
     @Test
     public void testAddop() {
-        System.out.println("\n" + "######################" + "\n" +
-                "#   Test addop  #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####   Test addop  ####");
         TokenType plus = TokenType.PLUS;
         Recognizer instance = new Recognizer( "+", false);
         try
@@ -410,9 +394,7 @@ public class RecognizerTest
     @Test
     public void testTerm()
     {
-        System.out.println("\n" + "######################" + "\n" +
-                "#     Test term      #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####     Test term      ####");
         Recognizer instance = new Recognizer
                 ("23 / 17", false);
         try
@@ -437,9 +419,7 @@ public class RecognizerTest
     @Test
     public void testTerm_part()
     {
-        System.out.println("\n" + "######################" + "\n" +
-                "#   Test term_part   #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####   Test term_part   ####");
         Recognizer instance = new Recognizer( "* foo / foo2", false);
         try
         {
@@ -462,9 +442,7 @@ public class RecognizerTest
      */
     @Test
     public void testMulop() {
-        System.out.println("\n" + "######################" + "\n" +
-                "#     Test mulop     #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####     Test mulop     ####");
         Recognizer instance = new Recognizer( "*", false);
         try
         {
@@ -490,9 +468,7 @@ public class RecognizerTest
     @Test
     public void testMatch()
     {
-        System.out.println("\n" + "######################" + "\n" +
-                "#     Test match     #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####     Test match     ####");
         TokenType ett = TokenType.PERIOD;
         Recognizer instance = new Recognizer( ".", false);
         try
@@ -515,9 +491,7 @@ public class RecognizerTest
     @Test
     public void testError()
     {
-        System.out.println("\n" + "######################" + "\n" +
-                "#     Test error     #" + "\n" +
-                "######################" + "\n");
+        System.out.println("####     Test error     ####");
         String expected = "error test";
         Recognizer instance = new Recognizer( "", false);
         try
