@@ -13,7 +13,7 @@ package dorseyparser;
 
 public class SymbolTable
 {
-    private HashMap<String, SymbolData> symbols = new HashMap<>();
+    private HashMap<String, SymbolData> symbolsTable = new HashMap<>();
 
     /**
      * Adds a variable identifier to the symbol table if the variable
@@ -22,9 +22,9 @@ public class SymbolTable
      */
     public void addVarName(String name)
     {
-        if (!symbols.containsKey(name))
+        if (!symbolsTable.containsKey(name))
         {
-            symbols.put(name, new SymbolData(name, KindEnum.VAR_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.VAR_NAME));
         }
     }
 
@@ -35,9 +35,9 @@ public class SymbolTable
      */
     public void addProgramName(String name)
     {
-        if (!symbols.containsKey(name))
+        if (!symbolsTable.containsKey(name))
         {
-            symbols.put(name, new SymbolData(name, KindEnum.PROGRAM_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.PROGRAM_NAME));
         }
     }
 
@@ -48,12 +48,56 @@ public class SymbolTable
      */
     public void addArrayName(String name)
     {
-        if (!symbols.containsKey(name))
+        if (!symbolsTable.containsKey(name))
         {
-            symbols.put(name, new SymbolData(name, KindEnum.ARRAY_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.ARRAY_NAME));
         }
     }
 
+    /**
+     * Adds a procedure identifier to the symbol table if the procedure
+     * name doesn't already exist in the table.
+     * @param name lexeme containing a procedure name.
+     */
+    public void addProcedureName(String name)
+    {
+        if (!symbolsTable.containsKey(name))
+        {
+            symbolsTable.put(name, new SymbolData(name, KindEnum.PROCEDURE_NAME));
+        }
+    }
+
+    /**
+     * Adds a function identifier to the symbol table if the function
+     * name doesn't already exist in the table.
+     * @param name lexeme containing a function name.
+     */
+    public void addFunctionName(String name)
+    {
+        if (!symbolsTable.containsKey(name))
+        {
+            symbolsTable.put(name, new SymbolData(name, KindEnum.FUNCTION_NAME));
+        }
+    }
+
+    /**
+     * Checks to see if the identifier name exists and if it is a variable name.
+     * @param name The symbol name that is being checked.
+     * @return A True will be returned if the name exists in the Symbol Table
+     * and if it's a variable. A False will be returned if the name does not
+     * exist in the Symbol Table or it is not a variable.
+     */
+    public boolean isVarName(String name)
+    {
+        SymbolData s = symbolsTable.get(name);
+        //If a variable name key exists and the kind is a variable name
+        if (s != null && s.kind == KindEnum.VAR_NAME)
+        {
+            return true;
+        }
+
+        return false;
+    }
 
 
     /**
