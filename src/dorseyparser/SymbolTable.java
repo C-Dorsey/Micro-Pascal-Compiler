@@ -15,6 +15,46 @@ public class SymbolTable
 {
     private HashMap<String, SymbolData> symbols = new HashMap<>();
 
+    /**
+     * Adds a variable identifier to the symbol table if the variable
+     * name doesn't exist in the table already.
+     * @param name lexeme containing a variable name.
+     */
+    public void addVarName(String name)
+    {
+        if (!symbols.containsKey(name))
+        {
+            symbols.put(name, new SymbolData(name, KindEnum.VAR_NAME));
+        }
+    }
+
+    /**
+     * Adds a program identifier to the symbol table if the program
+     * name doesn't already exist in the table.
+     * @param name lexeme containing a program name.
+     */
+    public void addProgramName(String name)
+    {
+        if (!symbols.containsKey(name))
+        {
+            symbols.put(name, new SymbolData(name, KindEnum.PROGRAM_NAME));
+        }
+    }
+
+    /**
+     * Adds an array identifier to the symbol table if the array name
+     * doesn't already exist in the table.
+     * @param name lexeme containing an array name.
+     */
+    public void addArrayName(String name)
+    {
+        if (!symbols.containsKey(name))
+        {
+            symbols.put(name, new SymbolData(name, KindEnum.ARRAY_NAME));
+        }
+    }
+
+
 
     /**
      * Contains the datatype and information values that are stored
