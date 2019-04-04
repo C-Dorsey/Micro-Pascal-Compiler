@@ -1,4 +1,4 @@
-/**
+package dorseyparser; /**
  * This program creates a symbol table that is implemented as a hash map
  * to store information about every pascal identifier added to the symbol
  * table. The symbol table will store identifier information such as the
@@ -8,8 +8,8 @@
  * @author Cohl Dorsey
  */
 
-import dorseyparser.KindEnum;
 import java.util.HashMap;
+
 package dorseyparser;
 
 public class SymbolTable
