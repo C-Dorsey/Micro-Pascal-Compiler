@@ -14,15 +14,18 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import dorseyScanner.Scanner;
 import dorseyScanner.Token;
 import dorseyScanner.TokenType;
+
 import static sun.management.Agent.error;
 
 public class Recognizer
 {
     private Token lookahead;
     private Scanner scanner;
+    private SymbolTable symbols = new SymbolTable();
 
     /**
      * The parser constructor that takes in a file path or text
@@ -342,13 +345,20 @@ public class Recognizer
         // All if statements compare current token to next.
         if(lookahead.getType() == TokenType.ID)
         {
-            variable();
-            assignop();
-            expression();
+             /* Check to see if the current identifier is a variable
+            or a procedure name. */
+            if (symbols.isVarName(lookahead.lexeme))
+            {
+                variable();
+                assignop();
+                expression();
+            }
+            else
+            {
+                procedure_statement();
+            }
         }
-               /* procedure_statement() path goes here.
-               This path is future work we don't have to do yet.
-                */
+
 
         else if(lookahead.getType() == TokenType.BEGIN)
         {
