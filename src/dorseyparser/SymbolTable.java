@@ -8,6 +8,7 @@
  * @author Cohl Dorsey
  */
 
+import dorseyparser.KindEnum;
 import java.util.HashMap;
 package dorseyparser;
 
