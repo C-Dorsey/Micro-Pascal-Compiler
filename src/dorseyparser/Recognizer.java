@@ -852,4 +852,8 @@ public class Recognizer
         }
         return answer;
     }
+    public SymbolTable getSymbolTable()
+    {
+        return symbols;
+    }
 }
