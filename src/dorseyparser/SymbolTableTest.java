@@ -22,7 +22,7 @@ public class SymbolTableTest
     {
         System.out.println("\n#####  Test ToString #####\n");
         Recognizer instance = new Recognizer
-                ("src/dorseyparser/rectest.pas", true);
+                ("src\\dorseyparser\\rectest3.pas", true);
         /*Calls Recognizer Object method program. Constructor
         is automatically called when an object of the class is
         created. */
