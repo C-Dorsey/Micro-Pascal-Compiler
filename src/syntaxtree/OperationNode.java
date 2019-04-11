@@ -1,6 +1,6 @@
 package syntaxtree;
 
-import scanner.ExpTokenType;
+import dorseyScanner.TokenType;
 
 /**
  * Represents any operation in an expression.
@@ -15,13 +15,13 @@ public class OperationNode extends ExpressionNode {
     private ExpressionNode right;
     
     /** The kind of operation. */
-    private ExpTokenType operation;
+    private TokenType operation;
     
     /**
      * Creates an operation node given an operation token.
      * @param op The token representing this node's math operation.
      */
-    public OperationNode ( ExpTokenType op) {
+    public OperationNode ( TokenType op) {
         this.operation = op;
     }
     
@@ -29,7 +29,7 @@ public class OperationNode extends ExpressionNode {
     // Getters
     public ExpressionNode getLeft() { return( this.left);}
     public ExpressionNode getRight() { return( this.right);}
-    public ExpTokenType getOperation() { return( this.operation);}
+    public TokenType getOperation() { return( this.operation);}
     
     // Setters
     public void setLeft( ExpressionNode node) {
@@ -40,7 +40,7 @@ public class OperationNode extends ExpressionNode {
         // If we already have a right, remove it from our child list.
         this.right = node;
     }
-    public void setOperation( ExpTokenType op) { this.operation = op;}
+    public void setOperation( TokenType op) { this.operation = op;}
     
     /**
      * Returns the operation token as a String.
