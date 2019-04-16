@@ -6,7 +6,7 @@
 
 package syntaxtree;
 
-public class VariableNode
+public class VariableNode extends ExpressionNode
 {
 
 }
