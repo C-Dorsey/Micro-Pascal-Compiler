@@ -8,7 +8,7 @@
 package syntaxtree;
 import java.util.ArrayList;
 
-public class SubProgramDeclarationsNode
+public class SubProgramDeclarationsNode extends SyntaxTreeNode
 {
     private ArrayList<SubProgramNode> procs = new ArrayList<SubProgramNode>();
 
