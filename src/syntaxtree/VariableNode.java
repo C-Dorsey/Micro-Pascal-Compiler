@@ -50,7 +50,7 @@ public class VariableNode extends ExpressionNode
     public String indentedToString(int level)
     {
         String answer = super.indentedToString(level);
-        answer += "Name: " + this.name + "\n";
+        answer += "Variable Name: " + this.name + "\n";
         return answer;
     }
 
