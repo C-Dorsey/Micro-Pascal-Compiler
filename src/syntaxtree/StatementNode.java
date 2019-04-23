@@ -6,7 +6,7 @@
 
 package syntaxtree;
 
-public class StatementNode extends SyntaxTreeNode
+public abstract class StatementNode extends SyntaxTreeNode
 {
 
 }
