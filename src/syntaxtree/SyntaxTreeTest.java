@@ -1,7 +1,7 @@
 package syntaxtree;
 
 import org.junit.Test;
-import scanner.TokenType;
+import dorseyScanner.TokenType;
 
 import static org.junit.Assert.assertEquals;
 
