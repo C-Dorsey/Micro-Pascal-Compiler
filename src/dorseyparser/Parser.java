@@ -1,14 +1,15 @@
 /**
- * This Java program illustrates reading from either a string or a file
- * which the path name will be passed into the constructor in the Parser
- * class when a method of the class is called. This class creates a parser,
- * implemented as a top-down recursive descent parser. In the middle of the
- * recursive decent the tree is built for the program. The parser builds a
- * syntax tree using the non-terminal symbols from the grammar and the nodes
- * from the classes in the syntaxtree package. Every time a node returns,
- * it returns a part that is added to the syntax tree. The parser also tells
- * whether an input string is from the language that is described by the
- * micro pascal grammar or not.
+ * This program is a Java program that illustrates reading from a text
+ * file or strings. Either a string or a file path name will be passed
+ * into the constructor in the Parser class when a method of the class
+ * is called. This class creates a parser, implemented as a top-down
+ * recursive descent parser. In the middle of the recursive decent the
+ * tree is built for the program. The parser builds a syntax tree using
+ * the non-terminal symbols from the grammar and the nodes from
+ * the classes in the syntaxtree package. Every time a node returns, it
+ * returns a part that is added to the syntax tree. The parser also tells
+ * whether an input string is from the language that is described by
+ * the micro pascal grammar or not.
  *
  * @author Cohl Dorsey
  */
@@ -20,51 +21,56 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
+
 import dorseyScanner.Scanner;
 import dorseyScanner.Token;
 import dorseyScanner.TokenType;
 import syntaxtree.*;
 
+
 public class Parser
 {
-    // Instance variables
+    // Instance Variables
     private Token lookahead;
     private Scanner scanner;
     private SymbolTable symbols = new SymbolTable();
 
+    // Constructors
+
     /**
      * The parser constructor that takes in a file path or text
-     * containing tokens. If isFilename is true, it signifies that
-     * the parser is looking at a file. If false, it signifies that
-     * the parser is looking at a lexeme and not a file.
-     * @param text - file path or text containing tokens to be
-     * recognized.
+     * containing tokens.
+     *
+     * If isFilename is true, it signifies that the parser is looking
+     * at a file. If false, it signifies that the parser is looking at a
+     * lexeme and not a file.
+     *
+     * @param text       - file path or text containing tokens to be
+     *                   recognized.
      * @param isFilename - boolean expression to  help recognize if it
-     * is a file path or text.
+     *                   is a file path or text.
      */
-    public Recognizer( String text, boolean isFilename)
+    public Parser(String text, boolean isFilename)
     {
-        // If the String object passed in is a file, the following
-        // statement is run.
-        if(isFilename)
+        if (isFilename)
         {
-            FileInputStream fis = null; // Create file object stream
+            FileInputStream fis = null;
             try
             {
-                fis = new FileInputStream(text); // Assign the file to the stream
+                fis = new FileInputStream(text);
             }
             catch (FileNotFoundException ex)
             {
-                // Error is thrown if file passed in can't be found
-                error("File Not Found");
+                //not a file
+                error("No file");
             }
-            InputStreamReader isr = new InputStreamReader(fis); // Pass file into the stream reader
-            scanner = new Scanner(isr); // Pass the reader into the scanner
+            InputStreamReader isr = new InputStreamReader(fis);
+            scanner = new Scanner(isr);
         }
-        // If the String object passed in is instead a token
         else
         {
-            scanner = new Scanner(new StringReader(text)); // Pass token to scanner
+            scanner = new Scanner(new StringReader(text));
         }
         try
         {
@@ -73,59 +79,96 @@ public class Parser
         }
         catch (IOException ex)
         {
-            // Error is thrown if not a string.
+            //not a string.
             error("Scan error");
         }
+
     }
 
-    ///////////////////////////////////
-    // Implementation of the grammar //
-    ///////////////////////////////////
+    ///////////////////////////////
+    //       Methods
+    ///////////////////////////////
 
     /**
-     * Executes the rule for the program symbol.
+     * Executes the rule for the program non-terminal symbol in
+     * the micro pascal grammar if it is recognized as a pascal program.
+     *
+     * @return - The program node representing the pascal program entered.
      */
-    public void program()
+    public ProgramNode program()
     {
         match(TokenType.PROGRAM);
+        String programName = lookahead.lexeme;
         match(TokenType.ID);
+        /* Allows the current identifier to be added as a
+        program in the symbol table. */
+        symbols.addProgramName(programName);
         match(TokenType.SEMI);
-        declarations();
-        subprogram_declarations();
-        compound_statement();
+        ProgramNode pn = new ProgramNode(programName);
+        DeclarationsNode dn = declarations();
+        pn.setVariables(dn);
+        SubProgramDeclarationsNode sdn = subprogram_declarations();
+        pn.setFunctions(sdn);
+        CompoundStatementNode csn = compound_statement();
+        pn.setMain(csn);
         match(TokenType.PERIOD);
+        return pn;
     }
 
     /**
-     * Executes the rule for identifier list
+     * Executes the rule for the identifier_list non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - A ArrayList of zero or more strings in the pascal
+     * program.
      */
-    public void identifier_list()
+    public ArrayList<String> identifier_list()
     {
+        ArrayList answer = new ArrayList();
+
+        String varName = lookahead.lexeme;
+        /* Must add before match because match confirms token type then
+        moves onto the next token */
+        answer.add(varName);
         match(TokenType.ID);
-        /* Compare the current lookahead token with a token type to
+        /* Allows the current identifier to be added as a
+        variable in the symbol table. */
+        symbols.addVarName(varName);
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.COMMA)
+        while (this.lookahead.getType() == TokenType.COMMA)
         {
             match(TokenType.COMMA);
-            identifier_list();
+            varName = lookahead.lexeme;
+            answer.add(varName);
+            match(TokenType.ID);
+            symbols.addVarName(varName);
         }
-        else
-        {
-            //Do nothing. This is for handling the empty/lambda option.
-        }
+
+        return answer;
     }
 
     /**
-     * Executes the rule for declarations
+     * Executes the rule for the declarations non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - The set of declarations representing the pascal program.
      */
-    public void declarations()
+    public DeclarationsNode declarations()
     {
-        /* Compare the current lookahead token with a token type to
+        DeclarationsNode answer = new DeclarationsNode();
+
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.VAR)
+        if (this.lookahead.getType() == TokenType.VAR)
         {
+
             match(TokenType.VAR);
-            identifier_list();
+            ArrayList<String> answers = identifier_list();
+            for (String s : answers)
+            {
+                answer.addVariable(new VariableNode(s));
+            }
             match(TokenType.COLON);
             type();
             match(TokenType.SEMI);
@@ -133,26 +176,34 @@ public class Parser
         }
         else
         {
-            //Do nothing. This is for handling the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+
+        return answer;
     }
 
 
     /**
-     * Handles the rule for type
+     * Executes the rule for the type non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - A ArrayList of zero or more strings in the pascal
+     * program.
      */
-    public void type()
+    public ArrayList<String> type()
     {
-        /* Compare the current lookahead token with a token type to
+        ArrayList answer = new ArrayList();
+
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.INTEGER ||
+        if (this.lookahead.getType() == TokenType.INTEGER ||
                 this.lookahead.getType() == TokenType.REAL)
         {
-            standard_type();
+            answer = standard_type();
         }
-        /* Else compare the current lookahead with a different
+        /* Otherwise comparing the current lookahead with a different
         declaration.*/
-        else if(this.lookahead.getType() == TokenType.ARRAY)
+        else if (this.lookahead.getType() == TokenType.ARRAY)
         {
             match(TokenType.ARRAY);
             match(TokenType.LBRACKET);
@@ -163,263 +214,361 @@ public class Parser
             match(TokenType.OF);
             standard_type();
         }
-        // Else not a type
         else
         {
-            error("Not a Type");
+            //if not a type
+            error("Type");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for standard type
+     * Executes the rule for the standard_type non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - A ArrayList of zero or more strings in the pascal
+     * program.
      */
-    public void standard_type()
+    public ArrayList<String> standard_type()
     {
-        /* Compare the current lookahead token with a token type to
+        ArrayList<String> answer = null;
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.INTEGER)
+        if (this.lookahead.getType() == TokenType.INTEGER)
         {
             match(TokenType.INTEGER);
+
         }
-        /* Else compare the current lookahead with a different
+        /* Otherwise comparing the current lookahead with a different
         declaration.*/
-        else if(this.lookahead.getType() == TokenType.REAL)
+        else if (this.lookahead.getType() == TokenType.REAL)
         {
             match(TokenType.REAL);
         }
-        // Else not a standard type
         else
         {
-            error("Not Standard Type");
+            //if not a standard type
+            error("Standard Type");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for subprogram declarations
+     * Executes the rule for the subprogram_declarations non-terminal
+     * symbol in the micro pascal grammar.
+     *
+     * @return - The collection of subprogram declarations in the
+     * pascal program.
      */
-    public void subprogram_declarations()
+    public SubProgramDeclarationsNode subprogram_declarations()
     {
-        /* Compare the current lookahead token with a token type to
+        SubProgramDeclarationsNode answer =
+                new SubProgramDeclarationsNode();
+
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(lookahead.getType() == TokenType.FUNCTION ||
+        if (lookahead.getType() == TokenType.FUNCTION ||
                 lookahead.getType() == TokenType.PROCEDURE)
         {
-            subprogram_declaration();
+            answer.addSubProgramDeclaration(subprogram_declaration());
             match(TokenType.SEMI);
-            subprogram_declarations();
+            answer = subprogram_declarations();
         }
         else
         {
-            //Do nothing. This is for handling the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+
+        return answer;
     }
 
     /**
-     * Handles the rule for subprogram declaration
+     * Executes the rule for the subprogram_declaration non-terminal
+     * symbol in the micro pascal grammar.
+     *
+     * @return - A subprogram node in the syntax tree in the
+     * pascal program.
      */
-    public void subprogram_declaration()
+    public SubProgramNode subprogram_declaration()
     {
-        subprogram_head();
+        SubProgramNode answer = new SubProgramNode();
+
+        answer.addSubProgramDeclaration(subprogram_head());
         declarations();
         compound_statement();
+
+        return answer;
     }
 
     /**
-     * Handles the rule for subprogram head
+     * Executes the rule for the subprogram_head non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - A subprogram node in the syntax tree in the
+     * pascal program.
      */
-    public void subprogram_head()
+    public SubProgramNode subprogram_head()
     {
-        /* Compare the current lookahead token with a token type to
+        SubProgramNode answer = new SubProgramNode();
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(lookahead.getType() == TokenType.FUNCTION)
+        if (lookahead.getType() == TokenType.FUNCTION)
         {
             match(TokenType.FUNCTION);
+            String functionName = lookahead.lexeme;
             match(TokenType.ID);
-            arguments();
+            /* Allows the current identifier to be added as a
+            function in the symbol table. */
+            symbols.addFunctionName(functionName);
+            ArrayList<VariableNode> argVar = arguments();
+            argVar.add(new VariableNode(functionName));
             match(TokenType.COLON);
             standard_type();
             match(TokenType.SEMI);
         }
-        /* Else compare the current lookahead with a different
+        /* Otherwise comparing the current lookahead with a different
         declaration.*/
-        else if(lookahead.getType() == TokenType.PROCEDURE)
+        else if (lookahead.getType() == TokenType.PROCEDURE)
         {
             match(TokenType.PROCEDURE);
+            String procedureName = lookahead.lexeme;
             match(TokenType.ID);
-            arguments();
+            /* Allows the current identifier to be added as a
+            procedure in the symbol table. */
+            symbols.addProcedureName(procedureName);
+            ArrayList<VariableNode> argVar = arguments();
+            argVar.add(new VariableNode(procedureName));
             match(TokenType.SEMI);
         }
-        // Else not a subprogram head
         else
         {
-            error("Not Subprogram Head");
+            //if not a subprogram head
+            error("Subprogram Head");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for arguments
+     * Executes the rule for the arguments non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - An ArrayList of VariableNodes.
      */
-    public void arguments()
+    public ArrayList<VariableNode> arguments()
     {
-        /* Compare the current lookahead token with a token type to
+        ArrayList<VariableNode> answer = new ArrayList<>();
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.LPAREN)
+        if (this.lookahead.getType() == TokenType.LPAREN)
         {
             match(TokenType.LPAREN);
-            parameter_list();
+            answer = parameter_list();
             match(TokenType.RPAREN);
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for parameter list
+     * Executes the rule for the parameter_list non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - An ArrayList of VariableNodes.
      */
-    public void parameter_list()
+    public ArrayList<VariableNode> parameter_list()
     {
-        identifier_list();
+        ArrayList<VariableNode> answer = new ArrayList<>();
+        ArrayList<String> idList = identifier_list();
+        for (String s : idList)
+        {
+            answer.add(new VariableNode(s));
+        }
         match(TokenType.COLON);
         type();
-        /* Compare the current lookahead token with a token type to
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(lookahead.getType() == TokenType.SEMI)
+        if (lookahead.getType() == TokenType.SEMI)
         {
             match(TokenType.SEMI);
             parameter_list();
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for compound statement
+     * Executes the rule for the compound_statement non-terminal symbol
+     * in the micro pascal grammar.
+     *
+     * @return - A a block of zero or more statements in the pascal
+     * program.
      */
-    public void compound_statement()
+    public CompoundStatementNode compound_statement()
     {
+        CompoundStatementNode answer = new CompoundStatementNode();
+
         match(TokenType.BEGIN);
-        optional_statements();
+        ArrayList<StatementNode> answers = optional_statements();
+        if(answers != null)
+        {
+            for (StatementNode state : answers)
+            {
+                answer.addStatement(state);
+            }
+        }
         match(TokenType.END);
+
+        return answer;
     }
 
     /**
-     * Handles the rule for optional statements
+     * Executes the rule for the optional_statements non-terminal
+     * symbol in the micro pascal grammar.
+     *
+     * @return - A ArrayList of statements in the pascal program.
      */
-    public void optional_statements()
+    public ArrayList<StatementNode> optional_statements()
     {
-        /* Compare the current lookahead token with a token type to
+        ArrayList<StatementNode> answers = null;
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(isStatement(lookahead))
+        if (isStatement(lookahead))
         {
-            statement_list();
+            answers = statement_list();
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+        return answers;
     }
 
     /**
-     * Handles the rule for statement list
+     * Executes the rule for the statement_list non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - A ArrayList of statements in the pascal program.
      */
-    public void statement_list()
+    public ArrayList<StatementNode> statement_list()
     {
-        statement();
-        /* Compare the current lookahead token with a token type to
+        ArrayList<StatementNode> answer = new ArrayList<>();
+        answer.add(statement());
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(lookahead.getType() == TokenType.SEMI)
+        while (lookahead.getType() == TokenType.SEMI)
         {
             match(TokenType.SEMI);
-            statement_list();
+            //Alternatively could have done .addAll(statement_list())
+            answer.add(statement());
         }
-        else
-        {
-            //Do nothing. This is for the empty/lambda option.
-        }
+
+        return answer;
     }
 
     /**
-     * Handles the rule for statement
+     * Executes the rule for the statement non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - A statement node representing a single statement in
+     * Pascal.
      */
-    public void statement()
+    public StatementNode statement()
     {
-        // All if statements compare current token to next.
-        if(lookahead.getType() == TokenType.ID)
+        AssignmentStatementNode answer = new AssignmentStatementNode();
+
+        IfStatementNode ifAnswer = new IfStatementNode();
+
+        WhileStatementNode whileAnswer = new WhileStatementNode();
+
+        ReturnStatementNode returnAnswer = new ReturnStatementNode();
+
+        WriteStatementNode writeAnswer = new WriteStatementNode();
+        /*All if/else if statements compare the lookahead token with a
+        token type to see if it matches the same type. */
+        if (lookahead.getType() == TokenType.ID)
         {
-             /* Check to see if the current identifier is a variable
+            /*Checks to see if the current identifier is a variable
             or a procedure name. */
             if (symbols.isVarName(lookahead.lexeme))
             {
-                variable();
+                answer.setLvalue(variable());
                 assignop();
-                expression();
+                answer.setExpression(expression());
             }
             else
             {
                 procedure_statement();
             }
         }
-
-
-        else if(lookahead.getType() == TokenType.BEGIN)
+        else if (lookahead.getType() == TokenType.BEGIN)
         {
             compound_statement();
         }
-        else if(lookahead.getType() == TokenType.IF)
+        else if (lookahead.getType() == TokenType.IF)
         {
             match(TokenType.IF);
-            expression();
+            ifAnswer.setTest(expression());
             match(TokenType.THEN);
             statement();
             match(TokenType.ELSE);
             statement();
         }
-        else if(lookahead.getType() == TokenType.WHILE)
+        else if (lookahead.getType() == TokenType.WHILE)
         {
             match(TokenType.WHILE);
-            expression();
+            whileAnswer.setWhileTest(expression());
             match(TokenType.DO);
             statement();
         }
-        else if(lookahead.getType() == TokenType.READ)
+        else if (lookahead.getType() == TokenType.READ)
         {
             match(TokenType.READ);
             match(TokenType.LPAREN);
             match(TokenType.ID);
             match(TokenType.RPAREN);
         }
-        else if(lookahead.getType() == TokenType.WRITE)
+        else if (lookahead.getType() == TokenType.WRITE)
         {
             match(TokenType.WRITE);
             match(TokenType.LPAREN);
-            expression();
+            writeAnswer.setWriteTest(expression());
             match(TokenType.RPAREN);
         }
-        else if(lookahead.getType() == TokenType.RETURN)
+        else if (lookahead.getType() == TokenType.RETURN)
         {
             match(TokenType.RETURN);
-            expression();
+            returnAnswer.setReturnTest(expression());
         }
-        // Else not a statement
         else
         {
-            error("Not a Statement");
+            //if not a statement
+            error("Statement");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for variable
+     * Executes the rule for the variable non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - a variable node in the syntax tree in the
+     * pascal program.
      */
-    public void variable()
+    public VariableNode variable()
     {
+        String varName = lookahead.lexeme;
+        VariableNode answer = new VariableNode(varName);
+
         match(TokenType.ID);
-        /* Compare the current lookahead token with a token type to
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.LBRACKET)
+        if (this.lookahead.getType() == TokenType.LBRACKET)
         {
             match(TokenType.LBRACKET);
             expression();
@@ -427,19 +576,22 @@ public class Parser
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+        return answer;
+
     }
 
     /**
-     * Handles the rule for procedure statement
+     * Executes the rule for the procedure_statement non-terminal symbol
+     * in the micro pascal grammar.
      */
     public void procedure_statement()
     {
         match(TokenType.ID);
-        /* Compare the current lookahead token with a token type to
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.LPAREN)
+        if (this.lookahead.getType() == TokenType.LPAREN)
         {
             match(TokenType.LPAREN);
             expression_list();
@@ -447,137 +599,190 @@ public class Parser
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
     }
 
     /**
-     * Handles the rule for expression list
+     * Executes the rule for the expression_list non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - Returns an ExpressionNode. The general representation of
+     * any expression in the pascal program.
      */
-    public void expression_list()
+    public ExpressionNode expression_list()
     {
-        expression();
-        /* Compare the current lookahead token with a token type to
+        ExpressionNode answer = null;
+
+        answer = expression();
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.COMMA)
+        if (this.lookahead.getType() == TokenType.COMMA)
         {
             match(TokenType.COMMA);
-            expression_list();
+            answer = expression_list();
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for expression
+     * Executes the rule for the expression non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - Returns an ExpressionNode. The general representation of
+     * any expression in the pascal program.
      */
-    public void expression()
+    public ExpressionNode expression()
     {
-        simple_expression();
-        if(isRelop(lookahead))
+        ExpressionNode answer = null;
+        answer = simple_expression();
+        if (isRelop(lookahead))
         {
-            relop();
-            simple_expression();
+            OperationNode opAnswer = new OperationNode(lookahead.getType());
+            opAnswer.setLeft(answer);
+            opAnswer = relop();
+            opAnswer.setRight(simple_expression());
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
         }
+        return answer;
     }
 
     /**
-     * This method is used to parse an expression. The simple
-     * expression in the micro pascal grammar.
+     * This method is used to parse an expression. Executes the rule
+     * for the simple_expression non-terminal symbol in the micro pascal
+     * grammar.
+     *
+     * @return - Returns an ExpressionNode. The general representation of
+     * any expression in the pascal program.
      */
-    public void simple_expression()
+    public ExpressionNode simple_expression()
     {
-        /* Compare the current lookahead token with a token type to
+        ExpressionNode answer = null;
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.ID ||
+        if (this.lookahead.getType() == TokenType.ID ||
                 this.lookahead.getType() == TokenType.NUMBER ||
                 this.lookahead.getType() == TokenType.LPAREN ||
                 this.lookahead.getType() == TokenType.NOT)
         {
-            term();
-            simple_part();
+            answer = term();
+            answer = simple_part(answer);
         }
-        else if(this.lookahead.getType() == TokenType.PLUS ||
+        else if (this.lookahead.getType() == TokenType.PLUS ||
                 this.lookahead.getType() == TokenType.MINUS)
         {
             sign();
-            term();
-            simple_part();
+            answer = term();
+            answer = simple_part(answer);
         }
-        // Else not a simple expression
         else
         {
-            error("Not a Simple Expression");
+            //if not a simple expression
+            error("Simple Expression");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for simple part
+     * Executes the rule for the simple_part non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @param - Takes an ExpressionNode as its possible left child.
+     * @return - Returns an ExpressionNode. The general representation of
+     * any expression in the pascal program.
      */
-    public void simple_part()
+    public ExpressionNode simple_part(ExpressionNode possibleLeft)
     {
-        /* Compare the current lookahead token with a token type to
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if( lookahead.getType() == TokenType.PLUS ||
+        if (lookahead.getType() == TokenType.PLUS ||
                 lookahead.getType() == TokenType.MINUS ||
-                lookahead.getType() == TokenType.OR) {
-            addop();
-            term();
-            simple_part();
+                lookahead.getType() == TokenType.OR)
+        {
+            OperationNode on = addop();
+            ExpressionNode right = term();
+            on.setLeft(possibleLeft);
+            on.setRight(right);
+            return simple_part(on);
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
+            return possibleLeft;
         }
     }
 
     /**
-     * Handles the rule for term
+     * Executes the rule for the term non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - Returns an ExpressionNode. The general representation of
+     * any expression in the pascal program.
      */
-    public void term() {
-        factor();
-        term_part();
+    public ExpressionNode term()
+    {
+        ExpressionNode left = factor();
+        return term_part(left);
     }
 
     /**
-     * Handles the rule for term part
+     * Executes the rule for the term_part non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @param - Takes an ExpressionNode as its possible left child.
+     * @return - Returns an ExpressionNode. The general representation of
+     * any expression in the pascal program.
      */
-    public void term_part()
+    public ExpressionNode term_part(ExpressionNode possibleLeft)
     {
-        if( isMulop( lookahead) )
+        if (isMulop(lookahead))
         {
-            mulop();
-            factor();
-            term_part();
+            OperationNode on = mulop();
+            ExpressionNode right = factor();
+            on.setLeft(possibleLeft);
+            on.setRight(right);
+            return term_part(on);
         }
         else
         {
-            //Do nothing. This is for the empty/lambda option.
+            //Do nothing. The empty lambda option.
+            return possibleLeft;
         }
     }
 
     /**
-     * Handles the rule for factor
+     * Executes the rule for the factor non-terminal symbol in
+     * the micro pascal grammar.
+     *
+     * @return - Returns an ExpressionNode. The general representation of
+     * any expression in the pascal program.
      */
-    public void factor()
+    public ExpressionNode factor()
     {
-        // All if statements compare the current lookahead token to the next
-        if(this.lookahead.getType() == TokenType.ID)
+        ExpressionNode answer = null;
+        /*All if/else if statements compare the lookahead token with a
+        token type to see if it matches the same type. */
+        if (this.lookahead.getType() == TokenType.ID)
         {
+            String varName = lookahead.getLexeme();
             match(TokenType.ID);
-            if(this.lookahead.getType() == TokenType.LBRACKET)
+            VariableNode var = new VariableNode(varName);
+            answer = var;
+
+            if (this.lookahead.getType() == TokenType.LBRACKET)
             {
                 match(TokenType.LBRACKET);
                 expression();
                 match(TokenType.RBRACKET);
             }
-            else if(this.lookahead.getType() == TokenType.LPAREN)
+            else if (this.lookahead.getType() == TokenType.LPAREN)
             {
                 match(TokenType.LPAREN);
                 expression_list();
@@ -585,188 +790,230 @@ public class Parser
             }
             else
             {
-                //Do nothing. This is for the empty/lambda option.
+                //Do nothing. The empty lambda option.
             }
         }
-        else if(this.lookahead.getType() == TokenType.NUMBER)
+        else if (this.lookahead.getType() == TokenType.NUMBER)
         {
+            String numName = lookahead.getLexeme();
+            ValueNode val = new ValueNode(numName);
             match(TokenType.NUMBER);
+            answer = val;
         }
-        else if(this.lookahead.getType() == TokenType.LPAREN)
+        else if (this.lookahead.getType() == TokenType.LPAREN)
         {
             match(TokenType.LPAREN);
-            expression();
+            answer = expression();
             match(TokenType.RPAREN);
         }
-        else if(this.lookahead.getType() == TokenType.NOT)
+        else if (this.lookahead.getType() == TokenType.NOT)
         {
             match(TokenType.NOT);
             factor();
         }
-        // Else not a factor
         else
         {
-            error("Not a Factor");
+            //if not a factor
+            error("Factor");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for sign
+     * Executes the rule for the sign non-terminal symbol in
+     * the micro pascal grammar.
      */
     public void sign()
     {
-        /* Compare the current lookahead token with a token type to
+        /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
-        if(this.lookahead.getType() == TokenType.PLUS)
+        if (this.lookahead.getType() == TokenType.PLUS)
         {
             match(TokenType.PLUS);
         }
-        else if(this.lookahead.getType() == TokenType.MINUS)
+        else if (this.lookahead.getType() == TokenType.MINUS)
         {
             match(TokenType.MINUS);
         }
-        // Else not a sign
         else
         {
-            error("Not a Sign");
+            //if not a sign
+            error("Sign");
         }
     }
 
     /**
      * This method is based on the relop rules in the micro pascal
      * grammar. It is used to compare the lookahead token with
-     * a token type to see if it matches that of the same type.
+     * a token type to see if it matches the same type.
+     *
+     * @return - Returns an OperationNode representing any operation in
+     * an expression.
      */
-    private void relop()
+    private OperationNode relop()
     {
-        // All if statements compare the current token to the next
-        if(this.lookahead.getType() == TokenType.EQUIV)
+        OperationNode answer = null;
+        /*All if/else if statements compare the lookahead token with a
+        token type to see if it matches the same type. */
+        if (this.lookahead.getType() == TokenType.EQUIV)
         {
             match(TokenType.EQUIV);
+            answer = new OperationNode(TokenType.EQUIV);
         }
-        else if(this.lookahead.getType() == TokenType.NOTEQUAL)
+        else if (this.lookahead.getType() == TokenType.NOTEQUAL)
         {
             match(TokenType.NOTEQUAL);
+            answer = new OperationNode(TokenType.NOTEQUAL);
         }
-        else if(this.lookahead.getType() == TokenType.LTHAN)
+        else if (this.lookahead.getType() == TokenType.LTHAN)
         {
             match(TokenType.LTHAN);
+            answer = new OperationNode(TokenType.LTHAN);
         }
-        else if(this.lookahead.getType() == TokenType.GTHAN)
+        else if (this.lookahead.getType() == TokenType.GTHAN)
         {
             match(TokenType.GTHAN);
+            answer = new OperationNode(TokenType.GTHAN);
         }
-        else if(this.lookahead.getType() == TokenType.LTHANEQUAL)
+        else if (this.lookahead.getType() == TokenType.LTHANEQUAL)
         {
             match(TokenType.LTHANEQUAL);
+            answer = new OperationNode(TokenType.LTHANEQUAL);
         }
-        else if(this.lookahead.getType() == TokenType.GTHANEQUAL)
+        else if (this.lookahead.getType() == TokenType.GTHANEQUAL)
         {
             match(TokenType.GTHANEQUAL);
+            answer = new OperationNode(TokenType.GTHANEQUAL);
         }
-        // Else not a relop
         else
         {
-            error("Not a Relop");
+            //if not a relop
+            error("Relop");
         }
+        return answer;
     }
 
     /**
      * This method is used to compare the lookahead token with
      * a token type to see if it matches the same type.
+     *
+     * @return - Returns an OperationNode representing any operation in
+     * an expression.
      */
-    private void addop()
+    private OperationNode addop()
     {
-        // All if statements compare the current token to the next
-        if( lookahead.getType() == TokenType.PLUS)
+        OperationNode answer = null;
+        /*All if/else if statements compare the lookahead token with a
+        token type to see if it matches the same type. */
+        if (lookahead.getType() == TokenType.PLUS)
         {
-            match( TokenType.PLUS);
+            match(TokenType.PLUS);
+            answer = new OperationNode(TokenType.PLUS);
         }
-        else if( lookahead.getType() == TokenType.MINUS)
+        else if (lookahead.getType() == TokenType.MINUS)
         {
-            match( TokenType.MINUS);
+            match(TokenType.MINUS);
+            answer = new OperationNode(TokenType.MINUS);
         }
-        else if ( lookahead.getType() == TokenType.OR)
+        else if (lookahead.getType() == TokenType.OR)
         {
-            match( TokenType.OR); //need to add OR here?
+            match(TokenType.OR);
+            answer = new OperationNode(TokenType.OR);
         }
-        // Else not an addop
         else
         {
-            error("Not an Addop");
+            //if not an addop
+            error("Addop");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for mulop
+     * Creating the mulop method. According to the micro pascal grammar,
+     * the ASSIGN token type
+     * stands for the assignop := token.
+     *
+     * @return - Returns an OperationNode representing any operation in
+     * an expression.
      */
-    protected void mulop()
+    protected OperationNode mulop()
     {
-        // All if statements compare the current token to the next
-        if( lookahead.getType() == TokenType.MULTI)
+        OperationNode answer = null;
+        /*All if/else if statements compare the lookahead token with a
+        token type to see if it matches the same type. */
+        if (lookahead.getType() == TokenType.MULTI)
         {
-            match( TokenType.MULTI);
+            match(TokenType.MULTI);
+            answer = new OperationNode(TokenType.MULTI);
         }
-        else if( lookahead.getType() == TokenType.FSLASH)
+        else if (lookahead.getType() == TokenType.FSLASH)
         {
-            match( TokenType.FSLASH);
+            match(TokenType.FSLASH);
+            answer = new OperationNode(TokenType.FSLASH);
         }
-        else if( lookahead.getType() == TokenType.DIV)
+        else if (lookahead.getType() == TokenType.DIV)
         {
-            match( TokenType.DIV);
+            match(TokenType.DIV);
+            answer = new OperationNode(TokenType.DIV);
         }
-        else if( lookahead.getType() == TokenType.MOD)
+        else if (lookahead.getType() == TokenType.MOD)
         {
-            match( TokenType.MOD);
+            match(TokenType.MOD);
+            answer = new OperationNode(TokenType.MOD);
         }
-        else if( lookahead.getType() == TokenType.AND)
+        else if (lookahead.getType() == TokenType.AND)
         {
-            match( TokenType.AND);
+            match(TokenType.AND);
+            answer = new OperationNode(TokenType.AND);
         }
-        // Else not a mulop
         else
         {
-            error("Not a Mulop");
+            //if not a mulop
+            error("Mulop");
         }
+        return answer;
     }
 
     /**
-     * Handles the rule for assignop
+     * Creating the assignop method. According to the micro pascal
+     * grammar, the ASSIGN token type stands for the assignop := token.
      */
     private void assignop()
     {
-       /* Compares the lookahead token with a token type to see if it
-         matches that of the same type. */
-        if(lookahead.getType() == TokenType.ASSIGN)
+       /*Compares the lookahead token with a token type to see if it
+         matches the same type. */
+        if (lookahead.getType() == TokenType.ASSIGN)
         {
             match(TokenType.ASSIGN);
         }
-        // Else not an assignop
         else
         {
-            error("Not an Assignop");
+            //if not an assignop
+            error("Assignop");
         }
     }
 
     /**
      * Compares the token type that's expected with the actual token
-     * type. If the token type passed in is the same as the token type
-     * then it is the current token or the end of the file.
-     * @param expected This is the expected token type.
+     * type. If the token type passed in is the same as the actual
+     * token type, then it is the current token or the end of the file.
+     *
+     * @param expected - This is the expected token type.
      */
-    protected void match( TokenType expected)
+    protected void match(TokenType expected)
     {
         System.out.println("match( " + expected + ")");
-        /* Compares the lookahead token with a token type to see if it
-         matches that of the same expected type. */
-        if( this.lookahead.getType() == expected)
+        /*Compares the lookahead token with a token type to see if it
+         matches the same expected type. */
+        if (this.lookahead.getType() == expected)
         {
             try
             {
                 this.lookahead = scanner.nextToken();
-                if( this.lookahead == null)
+                if (this.lookahead == null)
                 {
-                    this.lookahead = new Token( "End of File", null);
+                    this.lookahead = new
+                            Token("End of File", null);
                 }
             }
             catch (IOException ex)
@@ -776,36 +1023,46 @@ public class Parser
         }
         else
         {
-            error("Match of " + expected + " found " + this.lookahead.getType()
+            error("Match of " + expected + " found " +
+                    this.lookahead.getType()
                     + " instead.");
         }
     }
 
     /**
      * A custom error method for the parser. When the parser errors, an
-     * error message is printed out and the program is exited.
-     * @param message The error message that is printed.
+     * error message is printed out and the program is exited. The error
+     * message contains the error message string from the specific
+     * function, the line number the error was on, and the column number.
+     *
+     * @param message - The error message that is printed by using the
+     *                error strings from different functions.
      */
-    protected void error( String message)
+    protected void error(String message)
     {
         throw new RuntimeException(message);
     }
 
     /**
      * Checks to see if the token from the input string is a mulop token
-     * and returns a boolean expression if it's true or false.
-     * @param token The lookahead token to check against from the input string.
-     * @return If the token is a mulop it will be returned, otherwise nothing is returned
+     * or not and returns a boolean expression if it's true or false.
+     *
+     * @param token - The lookahead token to check against from
+     *              the input string.
+     * @return - If the token is a mulop it will be returned, otherwise
+     * it's false and nothing will be returned.
      */
-    private boolean isMulop( Token token)
+    private boolean isMulop(Token token)
     {
         boolean answer = false;
-        // Compares the lookahead token with a token type to see if it matches the same type.
-        if( token.getType() == TokenType.MULTI ||
+        /*Compares the lookahead token with a token type to see if it
+         matches the same type. */
+        if (token.getType() == TokenType.MULTI ||
                 token.getType() == TokenType.FSLASH ||
                 token.getType() == TokenType.DIV ||
                 token.getType() == TokenType.MOD ||
-                token.getType() == TokenType.AND) {
+                token.getType() == TokenType.AND)
+        {
             answer = true;
         }
         return answer;
@@ -815,14 +1072,18 @@ public class Parser
     /**
      * Checks to see if the token from the input string is a relop token
      * or not and returns a boolean expression if it's true or false.
-     * @param token The lookahead token to check against from the input string.
-     * @return If the token is a relop it will be returned, otherwise nothing is returned.
+     *
+     * @param token - The lookahead token to check against from the
+     *              input string.
+     * @return - If the token is a relop it will be returned, otherwise
+     * it's false and nothing will be returned.
      */
-    private boolean isRelop( Token token)
+    private boolean isRelop(Token token)
     {
         boolean answer = false;
-        // Compares the lookahead token with a token type to see if it matches the same type.
-        if(token.getType() == TokenType.EQUIV ||
+        /*Compares the lookahead token with a token type to see if it
+         matches the same type. */
+        if (token.getType() == TokenType.EQUIV ||
                 token.getType() == TokenType.NOTEQUAL ||
                 token.getType() == TokenType.LTHAN ||
                 token.getType() == TokenType.GTHAN ||
@@ -837,15 +1098,20 @@ public class Parser
 
     /**
      * Checks to see if the token from the input string is a statement
-     * token or not and returns a boolean expression.
-     * @param token The lookahead token to check against from the input string.
-     * @return If the token is a statement it will be returned, otherwise nothing is returned.
+     * token or not and returns a boolean expression if it's true or
+     * false.
+     *
+     * @param token - The lookahead token to check against from the
+     *              input string.
+     * @return - If the token is a statement it will be returned,
+     * otherwise it's false and nothing will be returned.
      */
-    private boolean isStatement( Token token)
+    private boolean isStatement(Token token)
     {
         boolean answer = false;
-        // Compare the lookahead token with a token type to see if it matches the same type.
-        if(token.getType() == TokenType.ID ||
+        /*Compares the lookahead token with a token type to see if it
+         matches the same type. */
+        if (token.getType() == TokenType.ID ||
                 token.getType() == TokenType.BEGIN ||
                 token.getType() == TokenType.IF ||
                 token.getType() == TokenType.WHILE ||
@@ -857,8 +1123,10 @@ public class Parser
         }
         return answer;
     }
+
     public SymbolTable getSymbolTable()
     {
         return symbols;
     }
+
 }
