@@ -198,6 +198,19 @@ public class SymbolTable
         return sb.toString();
     }
 
+    public TypeEnum typeOf(String name)
+    {
+        TypeEnum answer = null;
+        SymbolData s = symbolsTable.get(name);
+        /*Checking to make sure that a name has been added to the
+        symbol table*/
+        if(s !=null)
+        {
+            answer = s.type;
+        }
+        return answer;
+    }
+
     /**
      * Contains the datatype and information values that are stored
      * in the hash map.
@@ -206,22 +219,23 @@ public class SymbolTable
     {
         String name;
         KindEnum kind;
+        TypeEnum type;
 
-        SymbolData(String name, KindEnum kind)
+        SymbolData(String name, KindEnum kind, TypeEnum type)
         {
             this.name = name;
             this.kind = kind;
+            this.type = type;
         }
 
         /**
          * The string displayed for the returned SymbolData.
-         *
-         * @return - returns the SymbolData's name and kind.
+         * @return Returns the SymbolData's name and kind and type.
          */
         @Override
         public String toString()
         {
-            return  name + kind;
+            return  name + kind + type;
         }
     }
 }
