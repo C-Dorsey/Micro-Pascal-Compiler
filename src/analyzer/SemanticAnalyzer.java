@@ -18,6 +18,10 @@
  */
 
 package analyzer;
+import dorseyparser.SymbolTable;
+import dorseyparser.TypeEnum;
+import syntaxtree.*;
+import java.util.ArrayList;
 
 public class SemanticAnalyzer
 {
