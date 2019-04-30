@@ -100,7 +100,7 @@ public class SemanticAnalyzerTest
     public void testGoodToGo()
     {
         //Negative null type test.
-        System.out.println("\n#####     Test good to go     #####\n");
+        System.out.println("\n#####     Test good     #####\n");
         Parser parser = new Parser("fi", false);
         SymbolTable st = new SymbolTable();
         st.addVarName("fi", null);
