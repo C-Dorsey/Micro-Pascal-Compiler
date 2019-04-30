@@ -86,7 +86,7 @@ public class SymbolTableTest
     {
         System.out.println("\n#####  Test IsVarName  #####\n");
         SymbolTable symbol = new SymbolTable();
-        symbol.addVarName("foo");
+        symbol.addVarName("foo",null);
         /* Positive test to see if the identifier was added to the
          Symbol Table */
         assertTrue(symbol.isVarName("foo"));
