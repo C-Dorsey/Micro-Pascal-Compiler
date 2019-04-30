@@ -9,7 +9,7 @@
 package syntaxtree;
 import java.util.ArrayList;
 
-public class CompoundStatementNode extends SyntaxTreeNode
+public class CompoundStatementNode extends StatementNode
 {
     private ArrayList<StatementNode> statements = new ArrayList<StatementNode>();
 
