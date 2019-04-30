@@ -131,9 +131,6 @@ public class Parser
         moves onto the next token */
         answer.add(varName);
         match(TokenType.ID);
-        /* Allows the current identifier to be added as a
-        variable in the symbol table. */
-        symbols.addVarName(varName);
         /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
         while (this.lookahead.getType() == TokenType.COMMA)
@@ -142,7 +139,6 @@ public class Parser
             varName = lookahead.lexeme;
             answer.add(varName);
             match(TokenType.ID);
-            symbols.addVarName(varName);
         }
 
         return answer;
@@ -162,15 +158,17 @@ public class Parser
         see if it matches the same type. */
         if (this.lookahead.getType() == TokenType.VAR)
         {
-
             match(TokenType.VAR);
             ArrayList<String> answers = identifier_list();
+            match(TokenType.COLON);
+            TypeEnum type = type();
             for (String s : answers)
             {
+                symbols.addVarName(s, type);
+                VariableNode temp = new VariableNode(s);
+                temp.setType(type);
                 answer.addVariable(new VariableNode(s));
             }
-            match(TokenType.COLON);
-            type();
             match(TokenType.SEMI);
             declarations();
         }
@@ -186,13 +184,11 @@ public class Parser
     /**
      * Executes the rule for the type non-terminal symbol in
      * the micro pascal grammar.
-     *
-     * @return - A ArrayList of zero or more strings in the pascal
-     * program.
+     * @return A real or integer type of TypeEnum.
      */
-    public ArrayList<String> type()
+    public TypeEnum type()
     {
-        ArrayList answer = new ArrayList();
+        TypeEnum answer = null;
 
         /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
@@ -212,7 +208,7 @@ public class Parser
             match(TokenType.NUMBER);
             match(TokenType.RBRACKET);
             match(TokenType.OF);
-            standard_type();
+            answer = standard_type();
         }
         else
         {
@@ -226,24 +222,24 @@ public class Parser
      * Executes the rule for the standard_type non-terminal symbol in
      * the micro pascal grammar.
      *
-     * @return - A ArrayList of zero or more strings in the pascal
-     * program.
+     * @return A real or integer type of TypeEnum.
      */
-    public ArrayList<String> standard_type()
+    public TypeEnum standard_type()
     {
-        ArrayList<String> answer = null;
+        TypeEnum answer = null;
         /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
         if (this.lookahead.getType() == TokenType.INTEGER)
         {
             match(TokenType.INTEGER);
-
+            answer = TypeEnum.INTEGER_TYPE;
         }
         /* Otherwise comparing the current lookahead with a different
         declaration.*/
         else if (this.lookahead.getType() == TokenType.REAL)
         {
             match(TokenType.REAL);
+            answer = TypeEnum.REAL_TYPE;
         }
         else
         {
@@ -480,70 +476,80 @@ public class Parser
      */
     public StatementNode statement()
     {
-        AssignmentStatementNode answer = new AssignmentStatementNode();
+        StatementNode answer = null;
 
-        IfStatementNode ifAnswer = new IfStatementNode();
-
-        WhileStatementNode whileAnswer = new WhileStatementNode();
-
-        ReturnStatementNode returnAnswer = new ReturnStatementNode();
-
-        WriteStatementNode writeAnswer = new WriteStatementNode();
-        /*All if/else if statements compare the lookahead token with a
-        token type to see if it matches the same type. */
+		/*All if/else if statements compare the lookahead token with a
+		token type to see if it matches the same type. */
         if (lookahead.getType() == TokenType.ID)
         {
-            /*Checks to see if the current identifier is a variable
-            or a procedure name. */
+			/*Checks to see if the current identifier is a variable
+			or a procedure name. */
             if (symbols.isVarName(lookahead.lexeme))
             {
-                answer.setLvalue(variable());
+                AssignmentStatementNode an = new AssignmentStatementNode();
+                an.setLvalue(variable());
                 assignop();
-                answer.setExpression(expression());
+                an.setExpression(expression());
+                answer = an;
             }
             else
             {
-                procedure_statement();
+                //on sheet AssignmentStatementNode lvalue is set to be a variablenode
+                AssignmentStatementNode an = new AssignmentStatementNode();
+                an.setLvalue(procedure_statement());
+                answer = an;
             }
         }
         else if (lookahead.getType() == TokenType.BEGIN)
         {
-            compound_statement();
+            answer = compound_statement();
         }
         else if (lookahead.getType() == TokenType.IF)
         {
+            IfStatementNode ifAnswer = new IfStatementNode();
             match(TokenType.IF);
             ifAnswer.setTest(expression());
             match(TokenType.THEN);
-            statement();
+            ifAnswer.setThenStatement(statement());
             match(TokenType.ELSE);
-            statement();
+            ifAnswer.setElseStatement(statement());
+            answer = ifAnswer;
         }
         else if (lookahead.getType() == TokenType.WHILE)
         {
+            WhileStatementNode whileAnswer = new WhileStatementNode();
             match(TokenType.WHILE);
             whileAnswer.setWhileTest(expression());
             match(TokenType.DO);
-            statement();
+            whileAnswer.setStatement(statement());
+            answer = whileAnswer;
         }
         else if (lookahead.getType() == TokenType.READ)
         {
+            ReadStatementNode rsnAnswer = new ReadStatementNode();
             match(TokenType.READ);
             match(TokenType.LPAREN);
+            String varName = lookahead.lexeme;
+            rsnAnswer.setVarTest(new VariableNode(varName));
             match(TokenType.ID);
             match(TokenType.RPAREN);
+            answer = rsnAnswer;
         }
         else if (lookahead.getType() == TokenType.WRITE)
         {
+            WriteStatementNode writeAnswer = new WriteStatementNode();
             match(TokenType.WRITE);
             match(TokenType.LPAREN);
             writeAnswer.setWriteTest(expression());
             match(TokenType.RPAREN);
+            answer = writeAnswer;
         }
         else if (lookahead.getType() == TokenType.RETURN)
         {
+            ReturnStatementNode returnAnswer = new ReturnStatementNode();
             match(TokenType.RETURN);
             returnAnswer.setReturnTest(expression());
+            answer = returnAnswer;
         }
         else
         {
@@ -586,8 +592,11 @@ public class Parser
      * Executes the rule for the procedure_statement non-terminal symbol
      * in the micro pascal grammar.
      */
-    public void procedure_statement()
+    public VariableNode procedure_statement()
     {
+        String varName = lookahead.lexeme;
+        VariableNode answer = new VariableNode(varName);
+
         match(TokenType.ID);
         /*Comparing the current lookahead token with a token type to
         see if it matches the same type. */
@@ -601,6 +610,7 @@ public class Parser
         {
             //Do nothing. The empty lambda option.
         }
+        return answer;
     }
 
     /**
@@ -779,13 +789,13 @@ public class Parser
             if (this.lookahead.getType() == TokenType.LBRACKET)
             {
                 match(TokenType.LBRACKET);
-                expression();
+                answer = expression();
                 match(TokenType.RBRACKET);
             }
             else if (this.lookahead.getType() == TokenType.LPAREN)
             {
                 match(TokenType.LPAREN);
-                expression_list();
+                answer = expression_list();
                 match(TokenType.RPAREN);
             }
             else
