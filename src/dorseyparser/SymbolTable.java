@@ -21,11 +21,11 @@ public class SymbolTable
      * name doesn't exist in the table already.
      * @param name lexeme containing a variable name.
      */
-    public void addVarName(String name)
+    public void addVarName(String name, TypeEnum type)
     {
         if (!symbolsTable.containsKey(name))
         {
-            symbolsTable.put(name, new SymbolData(name, KindEnum.VAR_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.VAR_NAME, type));
         }
     }
 
@@ -38,7 +38,7 @@ public class SymbolTable
     {
         if (!symbolsTable.containsKey(name))
         {
-            symbolsTable.put(name, new SymbolData(name, KindEnum.PROGRAM_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.PROGRAM_NAME, null));
         }
     }
 
@@ -51,7 +51,7 @@ public class SymbolTable
     {
         if (!symbolsTable.containsKey(name))
         {
-            symbolsTable.put(name, new SymbolData(name, KindEnum.ARRAY_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.ARRAY_NAME, null));
         }
     }
 
@@ -64,7 +64,7 @@ public class SymbolTable
     {
         if (!symbolsTable.containsKey(name))
         {
-            symbolsTable.put(name, new SymbolData(name, KindEnum.PROCEDURE_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.PROCEDURE_NAME, null));
         }
     }
 
@@ -77,7 +77,7 @@ public class SymbolTable
     {
         if (!symbolsTable.containsKey(name))
         {
-            symbolsTable.put(name, new SymbolData(name, KindEnum.FUNCTION_NAME));
+            symbolsTable.put(name, new SymbolData(name, KindEnum.FUNCTION_NAME, null));
         }
     }
 
@@ -185,12 +185,16 @@ public class SymbolTable
     public String toString()
     {
         StringBuilder sb = new StringBuilder();
-        sb.append("\t\tSymbol Table\n\nSymbols\t\t\t\tKinds\n" +
-                "-------------------------------------\n");
-        for(HashMap.Entry<String, SymbolData> symbol: symbolsTable.entrySet())
+        sb.append(String.format("%35s%-20s %-20s%s%s",
+                "Symbol Table\n\n", "Symbols",
+                "Kinds", " Types\n",
+                "-------------------------------------------------" +
+                        "-------\n"));
+        for(HashMap.Entry<String, SymbolData> entry: symbolsTable.entrySet())
         {
-            String output = String.format("%-20s %-20s", symbol.getValue().name,
-                    symbol.getValue().kind);
+            String output = String.format("%-20s %-20s %-20s",
+                    entry.getValue().name, entry.getValue().kind,
+                    entry.getValue().type);
             sb.append(output);
             sb.append('\n');
         }
