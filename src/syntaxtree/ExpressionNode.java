@@ -1,10 +1,24 @@
 package syntaxtree;
+import dorseyparser.TypeEnum;
 
 /**
  * General representation of any expression.
  * @author erik
  */
-public class ExpressionNode {
+public class ExpressionNode extends SyntaxTreeNode
+{
+
+    private TypeEnum type = null;
+
+    public TypeEnum getType()
+    {
+        return type;
+    }
+
+    public void setType(TypeEnum type)
+    {
+        this.type = type;
+    }
     
     /**
      * Creates a String representation of this node and its children.

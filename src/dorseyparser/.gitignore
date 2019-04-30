@@ -1,0 +1,3 @@
+# Ignore the tree and table files produced by the compiler.
+*.tree
+*.table

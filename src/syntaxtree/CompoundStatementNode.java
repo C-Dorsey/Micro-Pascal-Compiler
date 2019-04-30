@@ -9,7 +9,7 @@
 package syntaxtree;
 import java.util.ArrayList;
 
-public class CompoundStatementNode extends SyntaxTreeNode
+public class CompoundStatementNode extends StatementNode
 {
     private ArrayList<StatementNode> statements = new ArrayList<StatementNode>();
 
@@ -21,6 +21,8 @@ public class CompoundStatementNode extends SyntaxTreeNode
     {
         this.statements.add(state);
     }
+
+    public ArrayList<StatementNode> getStatements() { return statements; }
 
     /**
      * This method creates a String representation of the compound
