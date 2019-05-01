@@ -652,10 +652,10 @@ public class Parser
         answer = simple_expression();
         if (isRelop(lookahead))
         {
-            OperationNode opAnswer = new OperationNode(lookahead.getType());
+            OperationNode opAnswer = relop();
             opAnswer.setLeft(answer);
-            opAnswer = relop();
             opAnswer.setRight(simple_expression());
+			answer = opAnswer;
         }
         else
         {
